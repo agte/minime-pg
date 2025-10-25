@@ -1,7 +1,7 @@
-import { Plugin } from '@minime/core';
-import pg from 'pg';
+import Plugin from '@minime/core/Plugin';
+import Client from './src/Client.js';
 
-export default class Pg extends Plugin {
+export default class PgPlugin extends Plugin {
   // Общие настройки для нескольких соединений, если их больше одного
   defaults = {
     host: 'localhost',
@@ -45,14 +45,11 @@ export default class Pg extends Plugin {
 
     if (dbs.length > 0) {
       this.connections = Object.fromEntries(
-        dbs.map((key) => [
-          key,
-          new pg.Pool({ ...this.defaults, ...config[key] })
-        ])
+        dbs.map((key) => [key, new Client({ ...this.defaults, ...config[key] })])
       );
       this.app.pg = this.connections;
     } else {
-      this.connections.default = new pg.Pool({ ...this.defaults, ...config });
+      this.connections.default = new Client({ ...this.defaults, ...config });
       this.app.pg = this.connections.default;
     }
   }
